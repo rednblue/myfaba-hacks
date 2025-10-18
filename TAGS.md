@@ -130,6 +130,7 @@
 | 0151 | Italian         | Buon Natale!                                                         |          |
 | 0152 | Italian         | Lounge Christmas                                                     |          |
 | 0154 | Italian         | Sing with Daisy Dot                                                  |          |
+| 0156 | Italian         | PAW Patrol la squadra dei cuccioli: Rocky                            | FFR15305 |
 | 0190 | Neutral         | FABA·ME white                                                        |          |
 | 0198 | Neutral         | FABA·ME red                                                          | FFR50002 |
 | 0199 | Neutral         | FABA·ME Blue                                                         |          |
