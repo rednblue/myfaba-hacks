@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MKI Cipher/Decipher</title>
+    <style>
+        :root {
+            --background-color: #f5f5f7;
+            --text-color: #1d1d1f;
+            --accent-color: #0071e3;
+            --border-color: #d2d2d7;
+            --section-background: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-size: 40px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            background-color: var(--section-background);
+            border: none;
+            border-bottom: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666; /* Add this line to set the default color to gray */
+        }
+
+        .tab:hover {
+            background-color: #f0f0f0;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section {
+            background-color: var(--section-background);
+            border-radius: 18px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            background-color: #0077ed;
+        }
+
+        .file-name {
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0077ed;
+        }
+
+        button:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+
+        #output {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: var(--section-background);
+            border-radius: 12px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 100px;
+            margin-bottom: 20px;
+        }
+
+        .folder-input-wrapper {
+            margin-bottom: 20px;
+        }
+
+        #footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        #footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        #footer a:hover {
+            text-decoration: underline;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MKI Cipher/Decipher</h1>
+        
+        <div class="tabs">
+            <button class="tab" data-tab="figure">Create Figure</button>
+            <button class="tab active" data-tab="cipher">Cipher MP3 File</button>
+            <button class="tab" data-tab="decipher">Decipher MKI File</button>
+        </div>
+
+        <div id="figureTab" class="tab-content">
+            <div class="section">
+                <h2>Create Figure</h2>
+                <div>This functionality allows to create a package to be uploaded to Faba Box. The files in the folder should be in MP3 format.</div>
+                <label for="figureId">Figure ID (3 digits):</label>
+                <input type="number" id="figureId" name="figureId" min="000" max="999" required>
+                <br>
+                <div class="folder-input-wrapper">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="folderInput" webkitdirectory directory multiple class="file-input">
+                        <label for="folderInput" class="file-input-label">Choose Folder</label>
+                    </div>
+                    <span id="folderName" class="file-name"></span>
+                </div>
+                <button id="processFigureButton" disabled>Process Files</button>
+
+                <br/>
+                <div>
+                    <h2>Guide</h2>
+                    <p>
+                        <ol>
+                            <li>Create a folder with your own songs in MP3 format</li>
+                            <li>Upload the folder above and choose the figure ID</li>
+                            <li>Click process Files and download the folder in Faba format</li>
+                            <li>Copy it to your Faba box</li>
+                            <li>Write an NFC TAG with the figure ID and enjoy it!</li>
+                        </ol>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div id="cipherTab" class="tab-content active">
+            <div class="section">
+                <h2>Cipher MP3 File</h2>
+                <div>This is just a test functionality to cipher a MP3 file.</div>
+                <div class="file-input-wrapper">
+                    <input type="file" id="cipherFileInput" accept=".mp3" class="file-input" />
+                    <label for="cipherFileInput" class="file-input-label">Choose MP3 File</label>
+                </div>
+                <span id="cipherFileName" class="file-name"></span>
+                <br><br>
+                <button id="cipherButton" disabled>Cipher File</button>
+            </div>
+        </div>
+
+        <div id="decipherTab" class="tab-content">
+            <div class="section">
+                <h2>Decipher MKI File</h2>
+                <div>This is just a test functionality to decipher a MKI file.</div>
+                <div class="file-input-wrapper">
+                    <input type="file" id="decipherFileInput" accept=".mki" class="file-input" />
+                    <label for="decipherFileInput" class="file-input-label">Choose MKI File</label>
+                </div>
+                <span id="decipherFileName" class="file-name"></span>
+                <br><br>
+                <button id="decipherButton" disabled>Decipher File</button>
+            </div>
+        </div>
+
+        
+
+        <div id="output"></div>
+        <footer id="footer">
+            2025 - Mauro Leonelli - Made with ❤️ in Sanremo, thanks to <a href="https://v0.dev" target="_blank" rel="noopener noreferrer">V0 by Vercel</a> - Based on <a href="https://github.com/wansors/myfaba-hacks" target="_blank" rel="noopener noreferrer">Wansors repository</a>
+        </br>
+            THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script>
+        const byteHighNibble = [
+            [0x30, 0x30, 0x20, 0x20, 0x10, 0x10, 0x00, 0x00, 0x70, 0x70, 0x60, 0x60, 0x50, 0x50, 0x40, 0x40, 0xB0, 0xB0, 0xA0, 0xA0, 0x90, 0x90, 0x80, 0x80, 0xF0, 0xF0, 0xE0, 0xE0, 0xD0, 0xD0, 0xC0, 0xC0],
+            [0x00, 0x00, 0x10, 0x10, 0x20, 0x20, 0x30, 0x30, 0x40, 0x40, 0x50, 0x50, 0x60, 0x60, 0x70, 0x70, 0x80, 0x80, 0x90, 0x90, 0xA0, 0xA0, 0xB0, 0xB0, 0xC0, 0xC0, 0xD0, 0xD0, 0xE0, 0xE0, 0xF0, 0xF0],
+            [0x10, 0x10, 0x00, 0x00, 0x30, 0x30, 0x20, 0x20, 0x50, 0x50, 0x40, 0x40, 0x70, 0x70, 0x60, 0x60, 0x90, 0x90, 0x80, 0x80, 0xB0, 0xB0, 0xA0, 0xA0, 0xD0, 0xD0, 0xC0, 0xC0, 0xF0, 0xF0, 0xE0, 0xE0],
+            [0x20, 0x20, 0x30, 0x30, 0x00, 0x00, 0x10, 0x10, 0x60, 0x60, 0x70, 0x70, 0x40, 0x40, 0x50, 0x50, 0xA0, 0xA0, 0xB0, 0xB0, 0x80, 0x80, 0x90, 0x90, 0xE0, 0xE0, 0xF0, 0xF0, 0xC0, 0xC0, 0xD0, 0xD0]
+        ];
+
+        const byteLowNibbleEven = [
+            [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7],
+            [0x5, 0x4, 0x7, 0x6, 0x1, 0x0, 0x3, 0x2],
+            [0x9, 0x8, 0xb, 0xa, 0xd, 0xc, 0xf, 0xe],
+            [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7]
+        ];
+
+        const byteLowNibbleOdd = [
+            [0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF],
+            [0xD, 0xC, 0xF, 0xE, 0x9, 0x8, 0xB, 0xA],
+            [0x1, 0x0, 0x3, 0x2, 0x5, 0x4, 0x7, 0x6],
+            [0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF]
+        ];
+
+        function cipher(byteArray) {
+            const result = new Uint8Array(byteArray.length);
+            for (let pos = 0; pos < byteArray.length; pos++) {
+                const byteRead = byteArray[pos];
+                let modifiedByte = 0;
+                const bytePos = pos % 4;
+                modifiedByte += byteHighNibble[bytePos][byteRead % 32];
+                if (byteRead % 2 === 0) {
+                    modifiedByte += byteLowNibbleEven[bytePos][Math.floor(byteRead / 32)];
+                } else {
+                    modifiedByte += byteLowNibbleOdd[bytePos][Math.floor(byteRead / 32)];
+                }
+                result[pos] = modifiedByte;
+            }
+            return result;
+        }
+
+        function findDecipheredData(pos, value) {
+            const highByte = value & 0xF0;
+            const lowByte = value & 0x0F;
+            const posByte = pos % 4;
+            let indexHigh = byteHighNibble[posByte].indexOf(highByte);
+            let indexLow = byteLowNibbleEven[posByte].indexOf(lowByte);
+            if (indexLow < 0) {
+                indexLow = byteLowNibbleOdd[posByte].indexOf(lowByte);
+                indexHigh++;
+            }
+            return indexLow * 32 + indexHigh;
+        }
+
+        function decipher(byteArray) {
+            const result = new Uint8Array(byteArray.length);
+            for (let pos = 0; pos < byteArray.length; pos++) {
+                const byteRead = byteArray[pos];
+                const modifiedByte = findDecipheredData(pos, byteRead);
+                result[pos] = modifiedByte;
+            }
+            return result;
+        }
+
+        function processFile(action) {
+            const fileInput = document.getElementById(action === 'cipher' ? 'cipherFileInput' : 'decipherFileInput');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a file first.');
+                return;
+            }
+
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            if ((action === 'cipher' && fileExtension !== 'mp3') || 
+                (action === 'decipher' && fileExtension !== 'mki')) {
+                alert(`Please select a ${action === 'cipher' ? '.mp3' : '.mki'} file.`);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const byteArray = new Uint8Array(e.target.result);
+                let processedArray;
+                if (action === 'cipher') {
+                    processedArray = cipher(byteArray);
+                } else {
+                    processedArray = decipher(byteArray);
+                }
+
+                const blob = new Blob([processedArray], { type: 'application/octet-stream' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${file.name.split('.')[0]}.${action === 'cipher' ? 'mki' : 'mp3'}`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                document.getElementById('output').textContent = `File processed successfully. Output file: ${a.download}`;
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        document.getElementById('cipherButton').addEventListener('click', () => processFile('cipher'));
+        document.getElementById('decipherButton').addEventListener('click', () => processFile('decipher'));
+        document.getElementById('processFigureButton').addEventListener('click', () => ProcessFigure());
+
+        document.getElementById('cipherFileInput').addEventListener('change', function(e) {
+            document.getElementById('cipherFileName').textContent = e.target.files[0] ? e.target.files[0].name : '';
+            document.getElementById('cipherButton').disabled = !e.target.files[0];
+        });
+
+        document.getElementById('decipherFileInput').addEventListener('change', function(e) {
+            document.getElementById('decipherFileName').textContent = e.target.files[0] ? e.target.files[0].name : '';
+            document.getElementById('decipherButton').disabled = !e.target.files[0];
+        });
+
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`${tabId}Tab`).classList.add('active');
+            });
+        });
+
+        // Add event listener for the Create Figure form
+        function ProcessFigure() {
+            
+            const figureId = document.getElementById('figureId').value;
+            const folderInput = document.getElementById('folderInput');
+            
+            if (figureId.length !== 3) {
+                alert('Figure ID must be exactly 3 digits.');
+                return;
+            }
+
+            if (folderInput.files.length === 0) {
+                alert('Please select a folder.');
+                return;
+            }
+
+            createFigure(figureId, folderInput.files);
+        }
+
+        // Event listener for folder input
+        document.getElementById('folderInput').addEventListener('change', function(e) {
+            const folderName = e.target.files[0]?.webkitRelativePath.split('/')[0] || '';
+            document.getElementById('folderName').textContent = folderName;
+            document.getElementById('processFigureButton').disabled = !folderName;
+        });
+
+        // Placeholder for the createFigure function
+        async function createFigure(figureId, files) {
+            const output = document.getElementById('output');
+
+            if (!/^\d{3}$/.test(figureId)) {
+                output.textContent = "Error: Figure ID must be exactly 3 digits.";
+                return;
+            }
+
+            if (files.length === 0) {
+                output.textContent = "Error: No MP3 files selected.";
+                return;
+            }
+
+            output.textContent = "Processing files...";
+
+            const zip = new JSZip();
+            const promises = [];
+
+            Array.from(files).forEach((file, index) => {
+                const iterator = String(index + 1).padStart(2, '0');
+                const newTitle = `K0${figureId}CP${iterator}`;
+
+                const promise = new Promise((resolve) => {
+                    jsmediatags.read(file, {
+                        onSuccess: function(tag) {
+                            tag.tags.title = newTitle;
+
+                            // Read the file, cipher it, and add to the zip archive
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const byteArray = new Uint8Array(e.target.result);
+                                const cipheredArray = cipher(byteArray);
+                                const cipheredBlob = new Blob([cipheredArray], { type: 'application/octet-stream' });
+                                zip.file(`CP${iterator}.MKI`, cipheredBlob);
+                                resolve();
+                            };
+                            reader.readAsArrayBuffer(file);
+                        },
+                        onError: function(error) {
+                            console.log('Error reading MP3 tags:', error.type, error.info);
+                            resolve();
+                        }
+                    });
+                });
+
+                promises.push(promise);
+            });
+
+            await Promise.all(promises);
+
+            zip.generateAsync({type:"blob"})
+            .then(function(content) {
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `K0${figureId}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                output.textContent = `Processing complete. K0${figureId}.zip has been downloaded.`;
+            });
+        }
+    </script>
+</body>
+</html>
