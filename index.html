@@ -190,12 +190,12 @@
         <h1>MKI Cipher/Decipher</h1>
         
         <div class="tabs">
-            <button class="tab" data-tab="figure">Create Figure</button>
-            <button class="tab active" data-tab="cipher">Cipher MP3 File</button>
+            <button class="tab active" data-tab="figure">Create Figure</button>
+            <button class="tab" data-tab="cipher">Cipher MP3 File</button>
             <button class="tab" data-tab="decipher">Decipher MKI File</button>
         </div>
 
-        <div id="figureTab" class="tab-content">
+        <div id="figureTab" class="tab-content active">
             <div class="section">
                 <h2>Create Figure</h2>
                 <div>This functionality allows to create a package to be uploaded to Faba Box. The files in the folder should be in MP3 format.</div>
@@ -228,7 +228,7 @@
             </div>
         </div>
 
-        <div id="cipherTab" class="tab-content active">
+        <div id="cipherTab" class="tab-content">
             <div class="section">
                 <h2>Cipher MP3 File</h2>
                 <div>This is just a test functionality to cipher a MP3 file.</div>
@@ -269,6 +269,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/browser-id3-writer@4.0.0/dist/browser-id3-writer.min.js"></script>
     <script>
         const byteHighNibble = [
             [0x30, 0x30, 0x20, 0x20, 0x10, 0x10, 0x00, 0x00, 0x70, 0x70, 0x60, 0x60, 0x50, 0x50, 0x40, 0x40, 0xB0, 0xB0, 0xA0, 0xA0, 0x90, 0x90, 0x80, 0x80, 0xF0, 0xF0, 0xE0, 0xE0, 0xD0, 0xD0, 0xC0, 0xC0],
@@ -450,26 +451,30 @@
                 const newTitle = `K0${figureId}CP${iterator}`;
 
                 const promise = new Promise((resolve) => {
-                    jsmediatags.read(file, {
-                        onSuccess: function(tag) {
-                            tag.tags.title = newTitle;
-
-                            // Read the file, cipher it, and add to the zip archive
-                            const reader = new FileReader();
-                            reader.onload = function(e) {
-                                const byteArray = new Uint8Array(e.target.result);
-                                const cipheredArray = cipher(byteArray);
-                                const cipheredBlob = new Blob([cipheredArray], { type: 'application/octet-stream' });
-                                zip.file(`CP${iterator}.MKI`, cipheredBlob);
-                                resolve();
-                            };
-                            reader.readAsArrayBuffer(file);
-                        },
-                        onError: function(error) {
-                            console.log('Error reading MP3 tags:', error.type, error.info);
+                    const reader = new FileReader();
+                    reader.onload = async function(e) {
+                        try {
+                            const arrayBuffer = e.target.result;
+                            const writer = new ID3Writer(arrayBuffer);
+                            writer.setFrame('TIT2', newTitle);
+                            writer.addTag();
+                            const taggedBlob = writer.getBlob();
+                            const taggedBuffer = await taggedBlob.arrayBuffer();
+                            const byteArray = new Uint8Array(taggedBuffer);
+                            const cipheredArray = cipher(byteArray);
+                            const cipheredBlob = new Blob([cipheredArray], { type: 'application/octet-stream' });
+                            zip.file(`CP${iterator}.MKI`, cipheredBlob);
+                        } catch (err) {
+                            console.log('Error tagging/processing file:', err);
+                        } finally {
                             resolve();
                         }
-                    });
+                    };
+                    reader.onerror = function() {
+                        console.log('FileReader error while processing', file.name);
+                        resolve();
+                    };
+                    reader.readAsArrayBuffer(file);
                 });
 
                 promises.push(promise);
