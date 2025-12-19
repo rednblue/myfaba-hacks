@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ</title>
+    <style>
+        :root {
+            --background-color: #f5f5f7;
+            --text-color: #1d1d1f;
+            --accent-color: #0071e3;
+            --border-color: #d2d2d7;
+            --section-background: #ffffff;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif; background-color: var(--background-color); color: var(--text-color); margin:0; }
+        .container { max-width: 900px; margin: 24px auto; padding: 20px; }
+        .top-nav { background:#fff; padding:10px 20px; display:flex; gap:16px; border-bottom:1px solid var(--border-color); }
+        .top-nav a { color:var(--accent-color); font-weight:600; text-decoration:none }
+        .markdown { background:var(--section-background); padding:24px; border-radius:12px; box-shadow:0 4px 8px rgba(0,0,0,0.06);} 
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="index.html">Home</a>
+        <a href="faq.html">FAQ</a>
+        <a href="faq_tags.html">FAQ Tags</a>
+    </nav>
+    <div class="container">
+        <h1>FAQ</h1>
+        <div id="content" class="markdown">Loading...</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+    <script>
+        fetch('FAQ.md')
+        .then(res => res.text())
+        .then(md => {
+            const html = marked.parse(md);
+            document.getElementById('content').innerHTML = DOMPurify.sanitize(html);
+        })
+        .catch(err => { document.getElementById('content').textContent = 'Error loading FAQ.md'; console.error(err); });
+    </script>
+</body>
+</html>
